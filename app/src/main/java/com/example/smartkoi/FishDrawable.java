@@ -21,6 +21,20 @@ public class FishDrawable extends Drawable {
     private float currentValue = 0f;
     private int OTHER_ALPHA = 1000;
 
+    public float getFrequance() {
+        return frequance;
+    }
+
+    public void setFrequance(float frequance) {
+        this.frequance = frequance;
+    }
+
+    //小鱼点击尾巴加速摆动
+    private float frequance = 1f;
+    public float getHEAD_RADIUS() {
+        return HEAD_RADIUS;
+    }
+
     private float HEAD_RADIUS = 50;
     //
     private float fishMainAngle = 90;
@@ -94,7 +108,7 @@ public class FishDrawable extends Drawable {
     @Override
     public void draw(@NonNull Canvas canvas) {
         //鱼的初始角度
-        float fishAngle = (float) (fishMainAngle + Math.sin(Math.toRadians(currentValue))*5);
+        float fishAngle = (float) (fishMainAngle + Math.sin(Math.toRadians(currentValue * frequance))*5);
         //鱼头的圆心坐标
         headPoint = calculatePoint(middlePoint, BODY_LENGTH ,fishAngle);
 
@@ -114,7 +128,7 @@ public class FishDrawable extends Drawable {
         makeSegment(canvas,smallCenterPoint,MIDDLE_CIRCLE_RADIUS,SMALL_CIRCLE_RADIUS,FIND_SMALL_CIRCLE_LENGTH,
                 fishAngle,false);
 
-        float findEdgeLength = (float) (Math.abs(Math.sin(Math.toRadians(currentValue   )) * BIG_CIRCLE_RADIUS));
+        float findEdgeLength = (float) (Math.abs(Math.sin(Math.toRadians(currentValue * frequance  )) * BIG_CIRCLE_RADIUS));
         //画尾巴
         makeTriangle(canvas,smallCenterPoint,FIND_TRIANGLE,findEdgeLength,fishAngle);
         makeTriangle(canvas,smallCenterPoint,FIND_TRIANGLE-10,findEdgeLength-10,fishAngle);
@@ -163,7 +177,7 @@ public class FishDrawable extends Drawable {
 
     private void makeTriangle(Canvas canvas, PointF startPoint,float findTriangle, float bigCircleLength, float fishAngle) {
         float tr = 0;
-        tr = (float) (fishAngle + Math.sin(Math.toRadians(currentValue*2))*30);
+        tr = (float) (fishAngle + Math.sin(Math.toRadians(currentValue*2*frequance))*30);
         //三角形底边中心坐标
         PointF centerPoint = calculatePoint(startPoint,findTriangle,tr - 180);
         //得到三角形的两个点
@@ -188,9 +202,9 @@ public class FishDrawable extends Drawable {
                              float findLength, float fishAngle, boolean hasBigCircle) {
         float segmentAngle = 0f;
         if (hasBigCircle){
-            segmentAngle = (float) (fishAngle + Math.cos(Math.toRadians(currentValue*2))*15);
+            segmentAngle = (float) (fishAngle + Math.cos(Math.toRadians(currentValue*2* frequance))*15);
         }else {
-            segmentAngle = (float) (fishAngle + Math.sin(Math.toRadians(currentValue*2))*30);
+            segmentAngle = (float) (fishAngle + Math.sin(Math.toRadians(currentValue*2* frequance))*30);
         }
         //梯形上底圆心
         PointF upperPoint = calculatePoint(startPoint,findLength,segmentAngle - 180);

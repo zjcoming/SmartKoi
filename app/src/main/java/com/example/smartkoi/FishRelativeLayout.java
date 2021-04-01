@@ -1,8 +1,11 @@
 package com.example.smartkoi;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
@@ -21,7 +24,7 @@ public class FishRelativeLayout extends RelativeLayout {
     private FishDrawable fishDrawable;
     private float touchX;
     private float touchY;
-    private float ripple = 0f;
+    private float ripple ;
 
     @Override
     public float getAlpha() {
@@ -44,7 +47,7 @@ public class FishRelativeLayout extends RelativeLayout {
     public void setRipple(float ripple) {
         this.ripple = ripple;
         alpha = 100*(1-ripple);
-        invalidate();
+
     }
 
     public FishRelativeLayout(Context context) {
@@ -72,9 +75,11 @@ public class FishRelativeLayout extends RelativeLayout {
         iv_fish = new ImageView(context);
         LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
         iv_fish.setLayoutParams(layoutParams);
+        iv_fish.setBackgroundColor(Color.BLUE);
         fishDrawable = new FishDrawable();
         iv_fish.setImageDrawable(fishDrawable);
         addView(iv_fish);
+        mPath = new Path();
     }
 
     @Override
@@ -82,7 +87,8 @@ public class FishRelativeLayout extends RelativeLayout {
         super.onDraw(canvas);
 
         mPaint.setAlpha((int) alpha);
-        canvas.drawCircle(touchX,touchY,ripple * 50,mPaint);
+        canvas.drawCircle(touchX,touchY,ripple * 150,mPaint);
+        invalidate();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -91,9 +97,7 @@ public class FishRelativeLayout extends RelativeLayout {
         touchX = event.getX();
         touchY = event.getY();
         ObjectAnimator.ofFloat(this,"ripple",0f,1f).setDuration(500).start();
-        
         makeTrail();
-        
         return super.onTouchEvent(event);
     }
 
@@ -116,12 +120,30 @@ public class FishRelativeLayout extends RelativeLayout {
          * 先用cos公式向量+三角函数算出AOB的度数
          * 控制点2在AOB的角平分线上（人为规定的）
          */
+        //控制点2的坐标
+        float angle = includeAngle(fishMiddle,fishHead,touch)/2;
+        float delta = includeAngle(fishMiddle,new PointF(fishMiddle.x + 1, fishMiddle.y),fishHead);
+        PointF control2 = fishDrawable.calculatePoint(fishMiddle, fishDrawable.getHEAD_RADIUS() * 1.6f,delta+angle);
+        mPath.reset();
+        mPath.moveTo(fishMiddle.x- fishRelativeMiddle.x,fishMiddle.y - fishRelativeMiddle.y);
+        mPath.cubicTo(fishHead.x- fishRelativeMiddle.x,fishHead.y- fishRelativeMiddle.y,control2.x,control2.y,touch.x- fishRelativeMiddle.x,touch.y- fishRelativeMiddle.y);
+        ObjectAnimator animator = ObjectAnimator.ofFloat(iv_fish, "x", "y", mPath);
+        animator.setDuration(2000);
+        animator.start();
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
 
-
-        Path path = new Path();
-        //ObjectAnimator.ofFloat(iv_fish,"x","y",path);
+                super.onAnimationEnd(animation);
+                fishDrawable.setFrequance(1);
+            }
+            @Override
+            public void onAnimationStart(Animator animation) {
+                super.onAnimationStart(animation);
+                fishDrawable.setFrequance(10);
+            }
+        });
     }
-
     /**
      *
      * @param A
@@ -135,8 +157,22 @@ public class FishRelativeLayout extends RelativeLayout {
         //OA*OB绝对值
         float OALength = (float) Math.sqrt((A.x-O.x)*(A.x-O.x) + (A.y-O.y)*(A.y-O.y));
         float OBLength = (float) Math.sqrt((B.x-O.x)*(B.x-O.x) + (B.y-O.y)*(B.y-O.y));
-        float cosAOB = OALength*OBLength / AOB;
+        float cosAOB = AOB / (OALength * OBLength);
         float angleAOB = (float) Math.toDegrees(Math.acos(cosAOB));
-        return 0;
+
+        float direction =(A.y - B.y) / (A.x - B.x) - (O.y - B.y) / (O.x - B.x);
+        if (direction == 0){
+            if(AOB >= 0){
+                return 0;
+            }else{
+                return 180;
+            }
+        }else{
+            if (direction > 0){
+                return -angleAOB;
+            }else{
+                return angleAOB;
+            }
+        }
     }
 }
