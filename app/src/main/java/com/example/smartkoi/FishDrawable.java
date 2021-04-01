@@ -36,6 +36,11 @@ public class FishDrawable extends Drawable {
     }
 
     private float HEAD_RADIUS = 50;
+
+    public void setFishMainAngle(float fishMainAngle) {
+        this.fishMainAngle = fishMainAngle;
+    }
+
     //
     private float fishMainAngle = 90;
 
@@ -128,7 +133,7 @@ public class FishDrawable extends Drawable {
         makeSegment(canvas,smallCenterPoint,MIDDLE_CIRCLE_RADIUS,SMALL_CIRCLE_RADIUS,FIND_SMALL_CIRCLE_LENGTH,
                 fishAngle,false);
 
-        float findEdgeLength = (float) (Math.abs(Math.sin(Math.toRadians(currentValue * frequance  )) * BIG_CIRCLE_RADIUS));
+        float findEdgeLength = (float) (Math.abs(Math.sin(Math.toRadians(currentValue * frequance)) * BIG_CIRCLE_RADIUS));
         //画尾巴
         makeTriangle(canvas,smallCenterPoint,FIND_TRIANGLE,findEdgeLength,fishAngle);
         makeTriangle(canvas,smallCenterPoint,FIND_TRIANGLE-10,findEdgeLength-10,fishAngle);
@@ -136,7 +141,6 @@ public class FishDrawable extends Drawable {
         makeBody(canvas,headPoint,fishAngle);
         //画眼睛
         makeEyes(canvas,headPoint,fishAngle);
-
     }
 
     private void makeEyes(Canvas canvas, PointF headPoint, float fishAngle) {

@@ -3,11 +3,13 @@ package com.example.smartkoi;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PathMeasure;
 import android.graphics.PointF;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -35,19 +37,13 @@ public class FishRelativeLayout extends RelativeLayout {
     public void setAlpha(float alpha) {
         this.alpha = alpha;
     }
-
     private float alpha;
-
-
-
     public float getRipple() {
         return ripple;
     }
-
     public void setRipple(float ripple) {
         this.ripple = ripple;
         alpha = 100*(1-ripple);
-
     }
 
     public FishRelativeLayout(Context context) {
@@ -75,7 +71,6 @@ public class FishRelativeLayout extends RelativeLayout {
         iv_fish = new ImageView(context);
         LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
         iv_fish.setLayoutParams(layoutParams);
-        iv_fish.setBackgroundColor(Color.BLUE);
         fishDrawable = new FishDrawable();
         iv_fish.setImageDrawable(fishDrawable);
         addView(iv_fish);
@@ -85,7 +80,6 @@ public class FishRelativeLayout extends RelativeLayout {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
         mPaint.setAlpha((int) alpha);
         canvas.drawCircle(touchX,touchY,ripple * 150,mPaint);
         invalidate();
@@ -110,7 +104,7 @@ public class FishRelativeLayout extends RelativeLayout {
         PointF fishMiddle = new PointF(fishRelativeMiddle.x + iv_fish.getX(), fishRelativeMiddle.y + iv_fish.getY());
 
         // 鱼头坐标 ---- 控制点一
-        PointF fishHead = new PointF(fishDrawable.getHeadPoint().x + iv_fish.getX(),
+        final PointF fishHead = new PointF(fishDrawable.getHeadPoint().x + iv_fish.getX(),
                 fishDrawable.getHeadPoint().y+iv_fish.getY());
 
         //点击坐标 ----结束点
@@ -123,13 +117,12 @@ public class FishRelativeLayout extends RelativeLayout {
         //控制点2的坐标
         float angle = includeAngle(fishMiddle,fishHead,touch)/2;
         float delta = includeAngle(fishMiddle,new PointF(fishMiddle.x + 1, fishMiddle.y),fishHead);
-        PointF control2 = fishDrawable.calculatePoint(fishMiddle, fishDrawable.getHEAD_RADIUS() * 1.6f,delta+angle);
+        PointF control2 = fishDrawable.calculatePoint(fishMiddle, fishDrawable.getHEAD_RADIUS()*1.6f ,Math.abs(delta-angle));
         mPath.reset();
         mPath.moveTo(fishMiddle.x- fishRelativeMiddle.x,fishMiddle.y - fishRelativeMiddle.y);
         mPath.cubicTo(fishHead.x- fishRelativeMiddle.x,fishHead.y- fishRelativeMiddle.y,control2.x,control2.y,touch.x- fishRelativeMiddle.x,touch.y- fishRelativeMiddle.y);
         ObjectAnimator animator = ObjectAnimator.ofFloat(iv_fish, "x", "y", mPath);
         animator.setDuration(2000);
-        animator.start();
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
@@ -140,9 +133,22 @@ public class FishRelativeLayout extends RelativeLayout {
             @Override
             public void onAnimationStart(Animator animation) {
                 super.onAnimationStart(animation);
-                fishDrawable.setFrequance(10);
+                fishDrawable.setFrequance(4);
             }
         });
+        final PathMeasure pathMeasure = new PathMeasure(mPath,false);
+        final float[] tan = new float[2];
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                //执行了周期的多少百分比
+                float fraction = animation.getAnimatedFraction();
+                pathMeasure.getPosTan(pathMeasure.getLength() * fraction,null,tan);
+                float angle = (float) Math.toDegrees(Math.atan2(-tan[1],tan[0]));
+                fishDrawable.setFishMainAngle(angle);
+            }
+        });
+        animator.start();
     }
     /**
      *
