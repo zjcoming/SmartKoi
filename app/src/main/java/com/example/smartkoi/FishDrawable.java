@@ -114,10 +114,10 @@ public class FishDrawable extends Drawable {
         makeSegment(canvas,smallCenterPoint,MIDDLE_CIRCLE_RADIUS,SMALL_CIRCLE_RADIUS,FIND_SMALL_CIRCLE_LENGTH,
                 fishAngle,false);
 
-        float findEdgeLength = (float) (Math.abs(Math.sin(Math.toRadians(currentValue)) * BIG_CIRCLE_RADIUS));
+        float findEdgeLength = (float) (Math.abs(Math.sin(Math.toRadians(currentValue   )) * BIG_CIRCLE_RADIUS));
         //画尾巴
-        makeTriangle(canvas,smallCenterPoint,FIND_TRIANGLE,BIG_CIRCLE_RADIUS-findEdgeLength,fishAngle);
-        makeTriangle(canvas,smallCenterPoint,FIND_TRIANGLE-20,BIG_CIRCLE_RADIUS-30-findEdgeLength,fishAngle);
+        makeTriangle(canvas,smallCenterPoint,FIND_TRIANGLE,findEdgeLength,fishAngle);
+        makeTriangle(canvas,smallCenterPoint,FIND_TRIANGLE-10,findEdgeLength-10,fishAngle);
         //画身体
         makeBody(canvas,headPoint,fishAngle);
         //画眼睛

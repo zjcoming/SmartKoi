@@ -119,7 +119,7 @@ public class FishRelativeLayout extends RelativeLayout {
 
 
         Path path = new Path();
-        ObjectAnimator.ofFloat(iv_fish,"x","y",path);
+        //ObjectAnimator.ofFloat(iv_fish,"x","y",path);
     }
 
     /**
