@@ -143,6 +143,13 @@ public class FishDrawable extends Drawable {
         makeEyes(canvas,headPoint,fishAngle);
     }
 
+    /**
+     *
+     * @param canvas
+     * @param headPoint
+     * @param fishAngle
+     */
+
     private void makeEyes(Canvas canvas, PointF headPoint, float fishAngle) {
         PointF leftEye = calculatePoint(headPoint,HEAD_RADIUS,fishAngle + 45);
         PointF rightEye = calculatePoint(headPoint,HEAD_RADIUS,fishAngle - 45);

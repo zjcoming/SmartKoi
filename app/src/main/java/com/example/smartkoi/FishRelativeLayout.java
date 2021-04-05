@@ -60,7 +60,7 @@ public class FishRelativeLayout extends RelativeLayout {
     }
 
     private void init(Context context) {
-        //VIewGroup默认不执行onDraw放阿飞
+        //VIewGroup默认不执行onDraw方法
         setWillNotDraw(false);
         //画水波纹
         mPaint = new Paint();
@@ -122,7 +122,8 @@ public class FishRelativeLayout extends RelativeLayout {
         mPath.moveTo(fishMiddle.x- fishRelativeMiddle.x,fishMiddle.y - fishRelativeMiddle.y);
         mPath.cubicTo(fishHead.x- fishRelativeMiddle.x,fishHead.y- fishRelativeMiddle.y,control2.x,control2.y,touch.x- fishRelativeMiddle.x,touch.y- fishRelativeMiddle.y);
         ObjectAnimator animator = ObjectAnimator.ofFloat(iv_fish, "x", "y", mPath);
-        animator.setDuration(2000);
+        animator.setDuration(2500);
+        //鱼游动时胃部加快摆动
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
@@ -143,6 +144,7 @@ public class FishRelativeLayout extends RelativeLayout {
             public void onAnimationUpdate(ValueAnimator animation) {
                 //执行了周期的多少百分比
                 float fraction = animation.getAnimatedFraction();
+                //得到路径的切线
                 pathMeasure.getPosTan(pathMeasure.getLength() * fraction,null,tan);
                 float angle = (float) Math.toDegrees(Math.atan2(-tan[1],tan[0]));
                 fishDrawable.setFishMainAngle(angle);
